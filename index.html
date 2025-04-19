@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width: 100%, initial-scale=1.0"> 
+
+    <title>Sketch</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden; /* 防止滾動條 */
+      }
+
+      .popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw; /* 視窗寬度 */
+        height: 100vh; /* 視窗高度 */
+        pointer-events: none; /* 禁止模態框背景的互動 */
+        z-index: 1000; /* 確保模態框在背景上方，但低於子選單 */
+      }
+
+      .popup-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%; /* 根據視窗寬度調整 */
+        height: auto;
+        background-color: transparent; /* 設為透明，避免白色背景干擾 */
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        padding: 20px;
+        pointer-events: auto; /* 啟用互動 */
+        display: block;
+      }
+
+      #quiz-content, #popup-image, #popup-video {
+        display: none; /* 預設隱藏所有內容 */
+      }
+
+      .popup-content h2 {
+        color: #87CEEB; /* 題目顏色為淺藍色 */
+        font-size: 4vw; /* 調整為更大的字體 */
+      }
+
+      .popup-content button {
+        margin: 10px;
+        padding: 10px 20px;
+        font-size: 1.5vw; /* 隨視窗大小調整字體 */
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #007BFF;
+        color: white;
+      }
+
+      .popup-content button:hover {
+        background-color: #0056b3;
+      }
+
+      img#popup-image {
+        width: 100%; /* 填滿模態框 */
+        height: auto; /* 按比例縮放 */
+        border-radius: 10px;
+      }
+
+      video#popup-video {
+        width: 100%; /* 填滿模態框 */
+        height: auto; /* 按比例縮放 */
+        border-radius: 10px;
+      }
+
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #faedcd; /* 修改為新的底色 */
+        transform: translateY(-100%); /* 隱藏選單 */
+        transition: transform 0.3s ease-in-out; /* 平滑顯示效果 */
+        z-index: 2000;
+      }
+
+      nav.visible {
+        transform: translateY(0); /* 顯示選單 */
+      }
+
+      nav ul {
+        list-style: none;
+        margin: 0;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+      }
+
+      nav ul li {
+        margin: 0 15px;
+      }
+
+      nav ul li a {
+        text-decoration: none;
+        color: #d4a373; /* 修改為新的文字顏色 */
+        font-size: 18px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 新增選單 -->
+    <nav>
+      <ul>
+        <li><a href="#" onclick="showImage()">首頁</a></li>
+        <li class="dropdown">
+          <a href="portfolio.html" onclick="hideMedia()">作品集</a>
+          <ul class="dropdown-menu">
+            <li><a href="#" onclick="showIframe('https://alisha111111.github.io/123/')">第一週</a></li>
+            <li><a href="#" onclick="showIframe('https://alisha111111.github.io/12345/')">第二週</a></li>
+            <li><a href="#" onclick="showIframe('https://alisha111111.github.io/1234/')">第三週</a></li>
+            <li><a href="#" onclick="showIframe('https://hackmd.io/@a_ihKHwxSSCZXNsKYk_PhQ/ryS2H1Z1gl')">筆記</a></li>
+          </ul>
+        </li>
+        <li><a href="#" onclick="showIframe('https://alisha111111.github.io/44444444444444/')">自我介紹</a></li>
+        <li><a href="#" onclick="showQuiz()">測驗卷</a></li>
+        <li><a href="#" onclick="showVideo()">教學影片</a></li>
+      </ul>
+    </nav>
+
+    <!-- 模態框 -->
+    <div id="popup" class="popup">
+      <div class="popup-content" id="quiz-content" style="display: none;">
+        <h2 id="quiz-question">題目 1: 5 + 3 = ?</h2>
+        <button onclick="checkAnswer(8)">8</button>
+        <button onclick="checkAnswer(9)">9</button>
+        <button onclick="checkAnswer(7)">7</button>
+        <p id="quiz-result" style="margin-top: 20px; font-size: 18px;"></p>
+      </div>
+      <div class="popup-content">
+        <img id="popup-image" src="report.png" alt="教育科技程式設計期中報告" style="display: none;">
+        <video id="popup-video" controls style="display: none;">
+          <source src="https://cfchen58.synology.me/程式設計2024/A2/week8/20250411_113919.mp4" type="video/mp4">
+          您的瀏覽器不支援影片播放。
+        </video>
+      </div>
+    </div>
+
+  
+
+    <div id="iframe-popup" class="popup" style="display: none;">
+      <div class="popup-content" style="background-color: white; width: 80%; height: 80%; padding: 20px;">
+        <iframe id="iframe-content" src="" style="width: 100%; height: 90%; border: none;"></iframe>
+        <button onclick="closeIframe()" style="margin-top: 10px; padding: 10px 20px; font-size: 16px;">關閉</button>
+      </div>
+    </div>
+
+    <script>
+      let currentQuestion = 1;
+      let correctAnswers = 0;
+      const totalQuestions = 3;
+
+      // 全域題目陣列
+      const questions = [
+        { question: "題目 1: 5 + 3 = ?", correct: 8 },
+        { question: "題目 2: 10 - 4 = ?", correct: 6 },
+        { question: "題目 3: 6 * 2 = ?", correct: 12 }
+      ];
+
+      function showImage() {
+        const image = document.getElementById("popup-image");
+        const video = document.getElementById("popup-video");
+        const quizContent = document.getElementById("quiz-content");
+        quizContent.style.display = "none"; // 隱藏測驗內容
+        video.style.display = "none"; // 隱藏影片
+        video.pause(); // 暫停影片
+        image.style.display = "block"; // 顯示圖片
+        image.style.animation = "fly-in 1s ease-out forwards"; // 執行飛入動畫
+      }
+
+      function showVideo() {
+        const image = document.getElementById("popup-image");
+        const video = document.getElementById("popup-video");
+        const quizContent = document.getElementById("quiz-content");
+        quizContent.style.display = "none"; // 隱藏測驗內容
+        image.style.display = "none"; // 隱藏圖片
+        video.style.display = "block"; // 顯示影片
+        video.style.animation = "fly-in 1s ease-out forwards"; // 執行飛入動畫
+        video.play(); // 播放影片
+      }
+
+      function showQuiz() {
+        const quizContent = document.getElementById("quiz-content");
+        const popup = document.getElementById("popup");
+        const image = document.getElementById("popup-image");
+        const video = document.getElementById("popup-video");
+        image.style.display = "none"; // 隱藏圖片
+        video.style.display = "none"; // 隱藏影片
+        video.pause(); // 暫停影片
+        quizContent.style.display = "block"; // 顯示測驗內容
+        popup.style.pointerEvents = "auto"; // 啟用互動
+        currentQuestion = 1; // 重置題目
+        correctAnswers = 0; // 重置正確答案計數
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        const questionElement = document.getElementById("quiz-question");
+        const resultElement = document.getElementById("quiz-result");
+        const quizContent = document.getElementById("quiz-content");
+
+        resultElement.textContent = ""; // 清空結果
+        if (currentQuestion <= questions.length) {
+          const current = questions[currentQuestion - 1];
+          questionElement.textContent = current.question;
+
+          // 清空舊的按鈕
+          const buttons = quizContent.querySelectorAll("button");
+          buttons.forEach((button) => button.remove());
+
+          // 動態生成選項按鈕
+          const answers = generateOptions(current.correct);
+          answers.forEach((answer) => {
+            const button = document.createElement("button");
+            button.textContent = answer;
+            button.onclick = () => checkAnswer(answer);
+            quizContent.appendChild(button);
+          });
+        }
+      }
+
+      // 新增 generateOptions 函式
+      function generateOptions(correctAnswer) {
+        const options = [correctAnswer];
+        while (options.length < 3) {
+          const randomOption = Math.floor(Math.random() * 20); // 隨機生成選項
+          if (!options.includes(randomOption)) {
+            options.push(randomOption);
+          }
+        }
+        return options.sort(() => Math.random() - 0.5); // 隨機排列選項
+      }
+
+      function checkAnswer(answer) {
+        const resultElement = document.getElementById("quiz-result");
+        if (answer === questions[currentQuestion - 1].correct) {
+          resultElement.textContent = "正確！";
+          resultElement.style.color = "green";
+          correctAnswers++;
+        } else {
+          resultElement.textContent = "錯誤，請再試一次！";
+          resultElement.style.color = "red";
+        }
+
+        // 下一題或顯示結果
+        setTimeout(() => {
+          if (currentQuestion < questions.length) {
+            currentQuestion++;
+            loadQuestion();
+          } else {
+            showResult();
+          }
+        }, 1000);
+      }
+
+      function showResult() {
+        const quizContent = document.getElementById("quiz-content");
+        const resultElement = document.getElementById("quiz-result");
+        resultElement.textContent = `測驗結束！正確答案數：${correctAnswers} / ${questions.length}`;
+        resultElement.style.color = "black";
+        setTimeout(() => {
+          quizContent.style.display = "none"; // 隱藏測驗內容
+          document.getElementById("popup").style.pointerEvents = "none"; // 禁用模態框互動
+        }, 3000);
+      }
+
+      function hideMedia() {
+        const image = document.getElementById("popup-image");
+        const video = document.getElementById("popup-video");
+        const quizContent = document.getElementById("quiz-content");
+        quizContent.style.display = "none"; // 隱藏測驗內容
+        if (image.style.display === "block") {
+          image.style.animation = "fly-out 1s ease-out forwards"; // 執行飛出動畫
+        }
+        if (video.style.display === "block") {
+          video.style.animation = "fly-out 1s ease-out forwards"; // 執行飛出動畫
+          video.pause(); // 暫停影片
+        }
+      }
+
+      function showBusinessCard() {
+        const businessCardPopup = document.getElementById("business-card-popup");
+        businessCardPopup.style.display = "block"; // 顯示模態框
+      }
+
+      function closeBusinessCard() {
+        const businessCardPopup = document.getElementById("business-card-popup");
+        businessCardPopup.style.display = "none"; // 隱藏模態框
+      }
+
+      function showIframe(url) {
+        const iframePopup = document.getElementById("iframe-popup");
+        const iframeContent = document.getElementById("iframe-content");
+
+        iframeContent.src = url; // 設定 iframe 的來源 URL
+        iframePopup.style.display = "block"; // 顯示模態框
+      }
+
+      function closeIframe() {
+        const iframePopup = document.getElementById("iframe-popup");
+        const iframeContent = document.getElementById("iframe-content");
+
+        iframeContent.src = ""; // 清空 iframe 的來源 URL
+        iframePopup.style.display = "none"; // 隱藏模態框
+      }
+
+
+   
+      const nav = document.querySelector("nav");
+
+      document.addEventListener("mousemove", (event) => {
+        if (event.clientY < 50) {
+          // 滑鼠靠近畫布頂部時顯示選單
+          nav.classList.add("visible");
+        } else {
+          // 滑鼠離開頂部時隱藏選單
+          nav.classList.remove("visible");
+        }
+      });
+    </script>
+
+    <script src="sketch.js"></script>
+  </body>
+</html>

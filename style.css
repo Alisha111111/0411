@@ -1,0 +1,81 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+canvas {
+  display: block;
+  position: absolute; /* 確保畫布填滿背景 */
+  top: 0;
+  left: 0;
+  z-index: -1; /* 將畫布置於選單下方 */
+}
+
+/* 設定選單樣式 */
+nav {
+  background-color: #fefae0; /* 選單背景色 */
+  padding: 10px 20px;
+  position: absolute; /* 將選單定位到右上角 */
+  top: 0;
+  right: 0;
+  z-index: 1; /* 確保選單在畫布上方 */
+  border-radius: 0 0 10px 10px; /* 圓角效果 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 添加陰影 */
+}
+
+nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: right; /* 選單項目靠右對齊 */
+}
+
+nav ul li {
+  display: inline-block;
+  margin: 0 10px;
+  position: relative; /* 為下拉選單定位 */
+}
+
+nav ul li a {
+  color: #003049; /* 選單文字顏色 */
+  text-decoration: none;
+  font-size: 18px;
+}
+
+nav ul li a:hover {
+  text-decoration: underline;
+}
+
+/* 下拉選單樣式 */
+.dropdown-menu {
+  display: none; /* 預設隱藏 */
+  position: absolute;
+  top: 100%; /* 下拉選單顯示在主選單下方 */
+  left: 0;
+  background-color: #fefae0; /* 與選單背景一致 */
+  padding: 10px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 添加陰影 */
+  border-radius: 0 0 10px 10px; /* 圓角效果 */
+}
+
+.dropdown-menu li {
+  display: block;
+  margin: 0;
+}
+
+.dropdown-menu li a {
+  color: #003049; /* 子選單文字顏色 */
+  padding: 5px 20px;
+  display: block;
+  text-decoration: none;
+}
+
+.dropdown-menu li a:hover {
+  background-color: #003049; /* 滑鼠懸停時背景變深 */
+  color: #fefae0; /* 滑鼠懸停時文字變亮 */
+}
+
+/* 顯示下拉選單 */
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
